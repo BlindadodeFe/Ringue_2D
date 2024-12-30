@@ -1,10 +1,10 @@
-from tabnanny import check
-
 import pygame
 import sys
+from PIL import Image
 
-
-from pygame.examples.go_over_there import event
+# Importações organizadas
+from componentes import StartButton, PauseButton, DeathButton, ScoreButton
+from utils import recortar_imagem
 
 # Inicializa o pygame
 pygame.init()
@@ -16,11 +16,12 @@ TITULO_TELA = "Meu Jogo"
 FPS = 60
 
 # Cores
-BRANCO = (255, 255, 255)
+WHITE = (255, 255, 255)
 PRETO = (0, 0, 0)
-AZUL = (0, 0, 255)
-VERDE = (0, 255, 0)
 VERMELHO = (255, 0, 0)
+
+# Caminho da pasta de imagens
+CAMINHO_IMAGEM = "Imagem/Hub.png"
 
 # Inicializa a janela
 tela = pygame.display.set_mode((LARGURA_TELA, ALTURA_TELA))
@@ -29,74 +30,100 @@ pygame.display.set_caption(TITULO_TELA)
 # Configura o relógio para controlar a taxa de quadros
 relogio = pygame.time.Clock()
 
-# Variáveis de jogo
-score = 0
-mortes = 0
-jogo_pausado = False
-jogo_funcionando = True
+# Carregar a imagem com PIL (Pillow)
+imagem_original = Image.open(CAMINHO_IMAGEM)
+
 
 # Função para desenhar o texto na tela
-def desenhar_texto(texto, cor, x, y, tamanho=74):
-    fonte = pygame.font.Font(None, tamanho)  # Fonte padrão
+def desenhar_texto(texto, cor, x, y, tamanho=44):
+    fonte = pygame.font.Font(None, tamanho)
     texto_renderizado = fonte.render(texto, True, cor)
     tela.blit(texto_renderizado, (x, y))
 
-# Função para desenhar os botões
-def desenhar_botao(texto, x, y, largura, altura, cor):
-    pygame.draw.rect(tela, cor, (x, y, largura, altura))
-    desenhar_texto(texto, BRANCO, x + 10, y + 10, 30)
 
-# Função para verificar se o clique está dentro de um botão
-def verificar_click(x, y, largura, altura, pos_x, pos_y):
-    return pos_x >= x and pos_x <= x + largura and pos_y >= y and pos_y <= y + altura
+def menu_inicial():
+    rodando_menu = True
+    mostrar_texto = True  # Controla o texto piscante
+    contador_tempo = 0  # Controla o tempo para piscar
+    start_button = StartButton(LARGURA_TELA // 2 - 75, ALTURA_TELA // 2 + 50, 150, 50, imagem_original)
 
+    while rodando_menu:
+        tela.fill(WHITE)
+
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        # Desenha o botão Start
+        if start_button.draw(tela):
+            rodando_menu = False  # Sai do menu e inicia o jogo
+
+        contador_tempo += 1
+        if contador_tempo >= 30:  # Alterna o efeito de piscar
+            mostrar_texto = not mostrar_texto
+            contador_tempo = 0
+
+        if mostrar_texto:
+            desenhar_texto("APERTE START", VERMELHO, LARGURA_TELA // 2 - 150, ALTURA_TELA // 2 - 50, 50)
+
+        pygame.display.flip()
+        relogio.tick(FPS)
+
+
+# Função principal do jogo
 def principal():
-    global score, mortes, jogo_funcionando, jogo_pausado  # Para modificar essas variáveis dentro da função
+    global score, mortes, jogo_pausado  # Para modificar variáveis
+    score = 0
+    mortes = 0
+    jogo_pausado = False
     rodando = True
+    imagem_exibida = None  # Variável para imagem recortada
+
+    # Criação dos botões
+    start_button = StartButton(10, 10, 150, 50, imagem_original)
+    pausa_button = PauseButton(200, 10, 150, 50, imagem_original)
+    mortes_button = DeathButton(400, 10, 50, 50, imagem_original)
+    score_button = ScoreButton(600, 10, 150, 50, imagem_original)
+
     while rodando:
+        tela.fill(WHITE)
+
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 rodando = False
-            if evento.type == pygame.MOUSEBUTTONDOWN:
-                # Pega a posição do clique
-                pos_x, pos_y = evento.pos
 
+        if pausa_button.draw(tela):
+            imagem_exibida = recortar_imagem(150, 0, 300, 50, imagem_original)
+            jogo_pausado = not jogo_pausado
 
+        if not jogo_pausado:
+            # Verifica cliques em outros botões
+            if start_button.draw(tela):
+                imagem_exibida = recortar_imagem(0, 0, 150, 50, imagem_original)
+            elif mortes_button.draw(tela):
+                imagem_exibida = recortar_imagem(300, 0, 450, 50, imagem_original)
+                mortes += 1
+            elif score_button.draw(tela):
+                imagem_exibida = recortar_imagem(450, 0, 600, 50, imagem_original)
+                score += 10
 
-                # Verifica se clicou no botão Score
-                if verificar_click(10, 10, 150, 50, pos_x, pos_y):
-                    score += 10  # Incrementa o score
-                # Verifica se clicou no botão Mortes
-                if verificar_click(200, 10, 150, 50, pos_x, pos_y):
-                    mortes += 1  # Incrementa o número de mortes
-                # Verifica se clicou no botão Pausa
-                if verificar_click(400, 10, 150, 50, pos_x, pos_y):
-                    jogo_pausado = not jogo_pausado  # Alterna o estado
+            desenhar_texto(f"Score: {score}", PRETO, 10, 44)
+            desenhar_texto(f"Mortes: {mortes}", PRETO, 200, 44)
 
-
-
-        # Logica do jogo
         if jogo_pausado:
-            desenhar_texto("Jogo Pausado", VERMELHO,  LARGURA_TELA - 235, 20, 45)
+            desenhar_texto("Jogo Pausado", VERMELHO, LARGURA_TELA - 235, 20, 45)
 
-        else:
-            # Atualiza o score e mortes na tela
-            desenhar_texto(f"Score: {score}", PRETO, 10, 20)
-            desenhar_texto(f"Mortes: {mortes}", PRETO, 200, 20)
+       # if imagem_exibida:
+       #      tela.blit(imagem_exibida, (500, 200))
 
-        # Desenha os botões
-        desenhar_botao("Score", 10, 10, 150, 50, AZUL)
-        desenhar_botao("Mortes", 200, 10, 150, 50, VERDE)
-        desenhar_botao("Pausa", 400, 10, 150, 50, VERMELHO)
-
-        # Atualiza a tela
         pygame.display.flip()
-
-        # Controla a taxa de quadros
         relogio.tick(FPS)
 
     pygame.quit()
     sys.exit()
 
+
 if __name__ == "__main__":
+    menu_inicial()
     principal()
