@@ -28,12 +28,12 @@ class Button:
 
 class StartButton(Button):
     def __init__(self, left, top, w, h, imagem_original):
-         start_imagem = recortar_imagem(158, 50, 300, 100, imagem_original)
+         start_imagem = recortar_imagem(158, 54, 300, 100, imagem_original)
          Button.__init__(self, left, top, w, h, start_imagem) 
 
 class PauseButton(Button):
     def __init__(self, left, top, w, h, imagem_original):
-         pausa_imagem = recortar_imagem(158, 10, 300, 60, imagem_original)
+         pausa_imagem = recortar_imagem(158, 13, 300, 60, imagem_original)
          Button.__init__(self, left, top, w, h, pausa_imagem) 
 
 class DeathButton(Button):
@@ -43,5 +43,13 @@ class DeathButton(Button):
 
 class ScoreButton(Button):
     def __init__(self, left, top, w, h, imagem_original):
-         score_imagem = recortar_imagem(450, 0, 600, 50, imagem_original)
-         Button.__init__(self, left, top, w, h, score_imagem) 
+         score_imagem = recortar_imagem(480, 20, 620, 50, imagem_original)
+         Button.__init__(self, left, top, w, h, score_imagem)
+
+class ResumeButton(Button):
+    def __init__(self, left, top, w, h, imagem_original):
+         resume_imagem = recortar_imagem(158, 13, 300, 60, imagem_original)
+         Button.__init__(self, left, top, w, h, resume_imagem)
+
+
+
