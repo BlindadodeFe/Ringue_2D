@@ -2,6 +2,8 @@ import pygame
 import sys
 from PIL import Image
 
+import constants as const # Importa as constantes do projeto
+
 # Importações organizadas
 from componentes import StartButton, PauseButton, DeathButton, ScoreButton, MenuButton
 from utils import recortar_imagem
@@ -10,23 +12,9 @@ from ringue import desenhar_ringue  # Importa a função para desenhar o ringue
 # Inicializa o pygame
 pygame.init()
 
-# Configurações da tela
-LARGURA_TELA = 1280  # Largura padrão caso não seja necessária a fullscreen
-ALTURA_TELA = 720  # Altura padrão caso não seja necessária a fullscreen
-TITULO_TELA = "Meu Jogo"
-FPS = 60
-
-# Cores
-WHITE = (255, 255, 255)
-PRETO = (0, 0, 0)
-VERMELHO = (255, 0, 0)
-
-# Caminho da imagem
-CAMINHO_IMAGEM = "Imagem/Hub.png"
-
 # Inicializa a tela no modo fullscreen
-tela = pygame.display.set_mode((LARGURA_TELA, ALTURA_TELA), pygame.FULLSCREEN)
-pygame.display.set_caption(TITULO_TELA)
+tela = pygame.display.set_mode((const.LARGURA_TELA_PADRAO, const.ALTURA_TELA_PADRAO), pygame.FULLSCREEN)
+pygame.display.set_caption(const.TITULO_TELA)
 
 # Obtém a largura e altura reais da tela para o modo fullscreen
 LARGURA_TELA, ALTURA_TELA = tela.get_size()
@@ -45,10 +33,10 @@ def carregar_imagem_para_pygame(imagem_pil):
 
 # Carregar a imagem
 try:
-    imagem_pil = Image.open(CAMINHO_IMAGEM)  # Leitura via PIL
+    imagem_pil = Image.open(const.CAMINHO_IMAGEM)  # Leitura via PIL
     imagem_original = carregar_imagem_para_pygame(imagem_pil)  # Conversão para pygame
 except FileNotFoundError:
-    print(f"Erro: A imagem '{CAMINHO_IMAGEM}' não foi encontrada.")
+    print(f"Erro: A imagem '{const.CAMINHO_IMAGEM}' não foi encontrada.")
     imagem_original = None
 
 
@@ -75,7 +63,7 @@ def menu_inicial(background_surface=None):
         if background_surface:
             tela.blit(background_surface, (0, 0))  # Exibe o jogo em segundo plano no menu
         else:
-            tela.fill(WHITE)
+            tela.fill(const.WHITE)
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
@@ -98,10 +86,10 @@ def menu_inicial(background_surface=None):
 
         # Texto piscante no menu inicial
         if mostrar_texto:
-            desenhar_texto("APERTE START", VERMELHO, LARGURA_TELA // 2 - 150, ALTURA_TELA // 2 - 50, 50)
+            desenhar_texto("APERTE START", const.VERMELHO, LARGURA_TELA // 2 - 150, ALTURA_TELA // 2 - 50, 50)
 
         pygame.display.flip()
-        relogio.tick(FPS)
+        relogio.tick(const.FPS)
 
 
 # Loop principal do jogo
@@ -124,7 +112,7 @@ def principal():
     overlay.fill((0, 0, 0))  # Preenche a surface com a cor preta
 
     while rodando:
-        tela.fill(WHITE)
+        tela.fill(const.WHITE)
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
@@ -139,7 +127,7 @@ def principal():
 
             # Desenhar o filtro preto transparente
             tela.blit(overlay, (0, 0))
-            desenhar_texto("Jogo Pausado", VERMELHO, LARGURA_TELA // 2 - 100, ALTURA_TELA // 2 - 50, 45)
+            desenhar_texto("Jogo Pausado", const.VERMELHO, LARGURA_TELA // 2 - 100, ALTURA_TELA // 2 - 50, 45)
 
             # Chamar o menu com o jogo em segundo plano
             if menu_button.draw(tela):
@@ -155,11 +143,11 @@ def principal():
             # Desenhar o quadrado com perspectiva
             desenhar_ringue(tela)
 
-            desenhar_texto(f"Pontos: {score}", PRETO, 10, 55)
-            desenhar_texto(f"M: {mortes}", PRETO, 224, 30)
+            desenhar_texto(f"Pontos: {score}", const.PRETO, 10, 55)
+            desenhar_texto(f"M: {mortes}", const.PRETO, 224, 30)
 
         pygame.display.flip()
-        relogio.tick(FPS)
+        relogio.tick(const.FPS)
 
     pygame.quit()
     sys.exit()
@@ -169,7 +157,7 @@ def principal():
 if __name__ == "__main__":
     # Inicializa o menu antes do loop
     jogo_background = pygame.Surface(tela.get_size())
-    tela.fill(WHITE)
+    tela.fill(const.WHITE)
     jogo_background.blit(tela, (0, 0))
     menu_inicial(jogo_background)
 
